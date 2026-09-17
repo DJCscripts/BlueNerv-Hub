@@ -1,5 +1,5 @@
 --// =====================================================
---//  BlueNerv Hub v1.1 - PART 1 (Core + Logic) FIXED
+--//  BlueNerv Admin Panel v2.0 - PART 1
 --//  Dev: Milover | Owner: DJC
 --//  Telegram: @DeverJomdsCodeCC
 --//  Key: FREE_324445184
@@ -11,12 +11,11 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 _G.BN = {
-    AUTHOR = {Dev = "Milover", Owner = "DJC", Version = "1.1", Telegram = "@DeverJomdsCodeCC", TelegramURL = "https://t.me/DeverJomdsCodeCC"},
+    AUTHOR = {Dev = "Milover", Owner = "DJC", Version = "2.0", Telegram = "@DeverJomdsCodeCC", TelegramURL = "https://t.me/DeverJomdsCodeCC"},
     KEY = "FREE_324445184",
     LANG = "en",
     THEME_NAME = "Blue",
@@ -58,286 +57,273 @@ _G.THEMES = {
 }
 
 _G.SETTINGS = {
-    Speed = {Enabled=false, Value=45},
-    Godmode = {Enabled=false},
+    Speed = {Enabled=false, Value=100},
     Jump = {Enabled=false, Value=100},
-    Fly = {Enabled=false, Speed=50, Key=Enum.KeyCode.F},
+    Fly = {Enabled=false, Speed=50},
     Noclip = {Enabled=false},
-    ESP = {Enabled=true, ShowEntity=true, ShowItem=true, ShowHighlight=true, ShowBox=true, ShowDistance=true, MaxDistance=300, Color=Color3.fromRGB(0, 200, 255)},
-    DoorGlow = {Enabled=true, Radius=100},
-    Fullbright = {Enabled=false},
-    NoFog = {Enabled=false},
-    AutoLoot = {Enabled=false},
-    AutoBreaker = {Enabled=false},
-    AutoPuzzle = {Enabled=false},
-    AutoHide = {Enabled=false},
+    InfiniteJump = {Enabled=false},
+    Gravity = {Enabled=false, Value=196},
+    TimeOfDay = {Enabled=false, Value=14},
+    Brightness = {Enabled=false, Value=2},
+    FogEnd = {Enabled=false, Value=1000},
+    BodyColor = {Enabled=false, R=255, G=255, B=255},
+    Transparency = {Enabled=false, Value=0},
+    Size = {Enabled=false, Value="Normal"},
+    Material = {Enabled=false, Value="Plastic"},
     Sound = {Enabled=true},
     MenuTransparency = 0,
 }
 
 _G.Theme = _G.THEMES[_G.BN.THEME_NAME]
 
---// ================== SPEED BOOST (Anti-Cheat Bypass) ==================
-local speedConn
-local function startSpeed()
-    if speedConn then speedConn:Disconnect() end
-    speedConn = RunService.Heartbeat:Connect(function()
-        if not _G.SETTINGS.Speed.Enabled then return end
-        local char = LocalPlayer.Character; if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if not hrp or not hum then return end
-        local moveDir = hum.MoveDirection
-        if moveDir.Magnitude > 0 then
-            local speed = _G.SETTINGS.Speed.Value / 16
-            hrp.CFrame = hrp.CFrame + moveDir * (speed * 0.5)
-        end
+--// ================== UI UTILS ==================
+_G.BN.corner = function(p, r)
+    local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(0, r or 8); c.Parent = p; return c
+end
+_G.BN.stroke = function(p, c, t, trans)
+    local s = Instance.new("UIStroke"); s.Color = c or _G.Theme.Stroke; s.Thickness = t or 1
+    s.Transparency = trans or 0; s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border; s.Parent = p; return s
+end
+_G.BN.gradient = function(p, c1, c2, rot)
+    local g = Instance.new("UIGradient"); g.Color = ColorSequence.new(c1, c2)
+    g.Rotation = rot or 0; g.Parent = p; return g
+end
+
+--// ================== HELLO ANIMATION ==================
+local function showHelloAnimation(callback)
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "BN_Hello"; sg.ResetOnSpawn = false; sg.IgnoreGuiInset = true
+    sg.DisplayOrder = 9999; sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(5, 10, 25)
+    bg.BorderSizePixel = 0; bg.ZIndex = 1; bg.Parent = sg
+    local bgGrad = Instance.new("UIGradient")
+    bgGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 10, 25)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 30, 70)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 10, 25)),
+    })
+    bgGrad.Rotation = 90; bgGrad.Parent = bg
+
+    for i = 1, 40 do
+        local star = Instance.new("Frame")
+        star.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
+        star.Position = UDim2.new(math.random(), 0, math.random(), 0)
+        star.BackgroundColor3 = Color3.fromRGB(200, 230, 255)
+        star.BorderSizePixel = 0; star.ZIndex = 2; star.Parent = sg
+        _G.BN.corner(star, 99)
+        TweenService:Create(star, TweenInfo.new(math.random(15, 30), Enum.EasingStyle.Linear), {
+            Position = UDim2.new(math.random(), 0, 1, 0)
+        }):Play()
+    end
+
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 200)
+    container.Position = UDim2.new(0, 0, 0.5, -100)
+    container.BackgroundTransparency = 1; container.ZIndex = 3
+    container.Parent = sg
+
+    local letters = {"H", "E", "L", "L", "O"}
+    local labels = {}
+    for i, letter in ipairs(letters) do
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(0, 0, 0, 0)
+        lbl.Position = UDim2.new(0.5, 0, 0.5, 0)
+        lbl.AnchorPoint = Vector2.new(0.5, 0.5)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = letter
+        lbl.TextColor3 = Color3.fromRGB(0, 200, 255)
+        lbl.TextStrokeTransparency = 0.3
+        lbl.TextStrokeColor3 = Color3.fromRGB(0, 136, 255)
+        lbl.Font = Enum.Font.GothamBlack
+        lbl.TextScaled = true; lbl.ZIndex = 4; lbl.Parent = container
+        labels[i] = lbl
+    end
+
+    local letterW = 60
+    local totalW = letterW * #letters
+    local startX = -totalW / 2 + letterW / 2
+
+    for i, lbl in ipairs(labels) do
+        task.wait(0.18)
+        lbl.Position = UDim2.new(0.5, startX + (i-1) * letterW, 0.5, 0)
+        TweenService:Create(lbl, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 50, 0, 100)
+        }):Play()
+    end
+
+    task.wait(0.6)
+
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Size = UDim2.new(1, 0, 0, 30)
+    subtitle.Position = UDim2.new(0, 0, 0.5, 80)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Text = "BlueNerv Admin Panel"
+    subtitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    subtitle.Font = Enum.Font.GothamBold
+    subtitle.TextSize = 22
+    subtitle.TextTransparency = 1
+    subtitle.ZIndex = 4; subtitle.Parent = container
+    TweenService:Create(subtitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+    local credit = Instance.new("TextLabel")
+    credit.Size = UDim2.new(1, 0, 0, 20)
+    credit.Position = UDim2.new(0, 0, 0.5, 115)
+    credit.BackgroundTransparency = 1
+    credit.Text = "by Milover & DJC"
+    credit.TextColor3 = Color3.fromRGB(0, 200, 255)
+    credit.Font = Enum.Font.Gotham
+    credit.TextSize = 13
+    credit.TextTransparency = 1
+    credit.ZIndex = 4; credit.Parent = container
+    TweenService:Create(credit, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+    task.wait(1.2)
+
+    TweenService:Create(bg, TweenInfo.new(0.6), {BackgroundTransparency = 1}):Play()
+    for _, lbl in ipairs(labels) do
+        TweenService:Create(lbl, TweenInfo.new(0.6), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+    end
+    TweenService:Create(subtitle, TweenInfo.new(0.6), {TextTransparency = 1}):Play()
+    TweenService:Create(credit, TweenInfo.new(0.6), {TextTransparency = 1}):Play()
+
+    task.wait(0.7)
+    sg:Destroy()
+    if callback then callback() end
+end
+
+--// ================== KEY SCREEN ==================
+local function keyScreen(callback)
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "BN_KeyUI"; sg.ResetOnSpawn = false; sg.IgnoreGuiInset = true
+    sg.DisplayOrder = 999; sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.new(0, 0, 0)
+    bg.BackgroundTransparency = 0.4
+    bg.BorderSizePixel = 0; bg.Parent = sg
+
+    local SCREEN = Camera.ViewportSize
+    local w = math.min(370, SCREEN.X - 30)
+    local h = 360
+
+    local main = Instance.new("Frame")
+    main.Size = UDim2.new(0, w, 0, h)
+    main.Position = UDim2.new(0.5, -w/2, 0.5, -h/2)
+    main.BackgroundColor3 = _G.Theme.BG
+    main.BorderSizePixel = 0; main.ClipsDescendants = true; main.Parent = sg
+    _G.BN.corner(main, 16); _G.BN.stroke(main, _G.Theme.Accent, 1.5, 0.3)
+
+    local topBar = Instance.new("Frame")
+    topBar.Size = UDim2.new(1, 0, 0, 4)
+    topBar.BackgroundColor3 = _G.Theme.Accent
+    topBar.BorderSizePixel = 0; topBar.Parent = main
+    _G.BN.gradient(topBar, _G.Theme.Accent, _G.Theme.Accent2, 0)
+
+    local icon = Instance.new("TextLabel")
+    icon.Size = UDim2.new(0, 60, 0, 60)
+    icon.Position = UDim2.new(0.5, -30, 0, 20)
+    icon.BackgroundTransparency = 1; icon.Text = "🛠"
+    icon.TextSize = 40; icon.Parent = main
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 24)
+    title.Position = UDim2.new(0, 0, 0, 88)
+    title.BackgroundTransparency = 1
+    title.Text = "BLUENERV ADMIN"
+    title.TextColor3 = _G.Theme.Text
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18; title.Parent = main
+
+    local sub = Instance.new("TextLabel")
+    sub.Size = UDim2.new(1, 0, 0, 16)
+    sub.Position = UDim2.new(0, 0, 0, 114)
+    sub.BackgroundTransparency = 1
+    sub.Text = "by Milover & DJC"
+    sub.TextColor3 = _G.Theme.TextDim
+    sub.Font = Enum.Font.Gotham
+    sub.TextSize = 11; sub.Parent = main
+
+    local input = Instance.new("TextBox")
+    input.Size = UDim2.new(1, -50, 0, 48)
+    input.Position = UDim2.new(0, 25, 0, 148)
+    input.BackgroundColor3 = _G.Theme.Elem
+    input.Text = ""; input.PlaceholderText = "Enter key..."
+    input.PlaceholderColor3 = _G.Theme.TextDim
+    input.TextColor3 = _G.Theme.Text
+    input.Font = Enum.Font.GothamSemibold
+    input.TextSize = 15; input.ClearTextOnFocus = false; input.Parent = main
+    _G.BN.corner(input, 12); local inpStroke = _G.BN.stroke(input, _G.Theme.Stroke, 1, 0)
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -50, 0, 48)
+    btn.Position = UDim2.new(0, 25, 0, 206)
+    btn.BackgroundColor3 = _G.Theme.Accent
+    btn.Text = "🔓  ACTIVATE"
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 15; btn.AutoButtonColor = false; btn.Parent = main
+    _G.BN.corner(btn, 12); _G.BN.gradient(btn, _G.Theme.Accent, _G.Theme.Accent2, 0)
+
+    local tg = Instance.new("TextButton")
+    tg.Size = UDim2.new(1, -50, 0, 40)
+    tg.Position = UDim2.new(0, 25, 0, 262)
+    tg.BackgroundColor3 = _G.Theme.Telegram
+    tg.Text = "📢  TELEGRAM"
+    tg.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tg.Font = Enum.Font.GothamBold
+    tg.TextSize = 13; tg.AutoButtonColor = false; tg.Parent = main
+    _G.BN.corner(tg, 12)
+    tg.MouseButton1Click:Connect(function()
+        pcall(function() game:GetService("GuiService"):OpenBrowserWindow(_G.BN.AUTHOR.TelegramURL) end)
+        if setclipboard then pcall(function() setclipboard(_G.BN.AUTHOR.TelegramURL) end) end
     end)
-end
-startSpeed()
 
---// ================== GODMODE ==================
-local godConn
-local function startGodmode()
-    if godConn then godConn:Disconnect() end
-    godConn = RunService.Heartbeat:Connect(function()
-        if not _G.SETTINGS.Godmode.Enabled then return end
-        local char = LocalPlayer.Character; if not char then return end
-        local hum = char:FindFirstChildOfClass("Humanoid"); if not hum then return end
-        if hum.Health < hum.MaxHealth then hum.Health = hum.MaxHealth end
+    local status = Instance.new("TextLabel")
+    status.Size = UDim2.new(1, -50, 0, 20)
+    status.Position = UDim2.new(0, 25, 1, -30)
+    status.BackgroundTransparency = 1; status.Text = ""
+    status.TextColor3 = _G.Theme.Danger
+    status.Font = Enum.Font.Gotham
+    status.TextSize = 12; status.Parent = main
+
+    local function activate()
+        if input.Text == _G.BN.KEY then
+            status.Text = "✅ Access granted!"; status.TextColor3 = _G.Theme.Success
+            inpStroke.Color = _G.Theme.Success
+            task.wait(0.5); sg:Destroy()
+            if callback then callback() end
+        else
+            status.Text = "❌ Invalid key!"; status.TextColor3 = _G.Theme.Danger
+            inpStroke.Color = _G.Theme.Danger
+            local orig = main.Position
+            for i = 1, 4 do
+                TweenService:Create(main, TweenInfo.new(0.05), {
+                    Position = orig + UDim2.new(0, (i % 2 == 0 and 8 or -8), 0, 0)
+                }):Play()
+                task.wait(0.05)
+            end
+            TweenService:Create(main, TweenInfo.new(0.05), {Position = orig}):Play()
+        end
+    end
+    btn.MouseButton1Click:Connect(activate)
+    input.FocusLost:Connect(function(e) if e then activate() end end)
+end
+
+--// ================== START ==================
+task.spawn(function()
+    local ok1, err1 = pcall(showHelloAnimation, function()
+        print("[BlueNerv-P1] Hello animation done")
+        local ok2, err2 = pcall(keyScreen, function()
+            print("[BlueNerv-P1] Key accepted! Loading Part2...")
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/DJCscripts/BlueNerv-Hub/main/Part2.lua", true))()
+        end)
+        if not ok2 then warn("[BN-KEY ERROR] "..tostring(err2)) end
     end)
-end
-startGodmode()
-
---// ================== JUMP ==================
-RunService.Heartbeat:Connect(function()
-    if not _G.SETTINGS.Jump.Enabled then return end
-    local char = LocalPlayer.Character; if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid"); if not hum then return end
-    if hum.FloorMaterial ~= Enum.Material.Air then
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local bv = Instance.new("BodyVelocity")
-            bv.Velocity = Vector3.new(0, _G.SETTINGS.Jump.Value / 2, 0)
-            bv.MaxForce = Vector3.new(0, math.huge, 0)
-            bv.Parent = hrp
-            task.delay(0.15, function() if bv then bv:Destroy() end end)
-        end
-    end
+    if not ok1 then warn("[BN-HELLO ERROR] "..tostring(err1)) end
 end)
-
---// ================== FLY ==================
-local flyGyro, flyVelocity
-RunService.RenderStepped:Connect(function()
-    local char = LocalPlayer.Character; if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hrp or not hum then return end
-    if _G.SETTINGS.Fly.Enabled then
-        hum.PlatformStand = true
-        if not flyGyro or flyGyro.Parent ~= hrp then
-            if flyGyro then flyGyro:Destroy() end
-            if flyVelocity then flyVelocity:Destroy() end
-            flyGyro = Instance.new("BodyGyro"); flyGyro.P = 9e4
-            flyGyro.MaxTorque = Vector3.new(9e9,9e9,9e9)
-            flyGyro.CFrame = hrp.CFrame; flyGyro.Parent = hrp
-            flyVelocity = Instance.new("BodyVelocity")
-            flyVelocity.Velocity = Vector3.zero
-            flyVelocity.MaxForce = Vector3.new(9e9,9e9,9e9)
-            flyVelocity.P = 1250; flyVelocity.Parent = hrp
-        end
-        flyGyro.CFrame = Camera.CFrame
-        local move = Vector3.zero
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then move += Camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then move -= Camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then move -= Camera.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then move += Camera.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then move -= Vector3.new(0,1,0) end
-        if move.Magnitude > 0 then flyVelocity.Velocity = move.Unit * _G.SETTINGS.Fly.Speed
-        else flyVelocity.Velocity = Vector3.zero end
-    else
-        if flyGyro then flyGyro:Destroy(); flyGyro = nil end
-        if flyVelocity then flyVelocity:Destroy(); flyVelocity = nil end
-        if hum then hum.PlatformStand = false end
-    end
-end)
-
-UserInputService.InputBegan:Connect(function(input, gp)
-    if gp then return end
-    if input.KeyCode == _G.SETTINGS.Fly.Key then
-        _G.SETTINGS.Fly.Enabled = not _G.SETTINGS.Fly.Enabled
-    end
-end)
-
---// ================== NOCLIP ==================
-RunService.Stepped:Connect(function()
-    if not _G.SETTINGS.Noclip.Enabled then return end
-    local char = LocalPlayer.Character; if not char then return end
-    for _, part in ipairs(char:GetDescendants()) do
-        if part:IsA("BasePart") and part.CanCollide then part.CanCollide = false end
-    end
-end)
-
---// ================== DOOR GLOW (Rainbow) ==================
-local doorParts = {}
-local hue = 0
-RunService.Heartbeat:Connect(function(dt)
-    if not _G.SETTINGS.DoorGlow.Enabled then
-        for _, d in pairs(doorParts) do
-            if d.light then d.light:Destroy() end
-            if d.hl then d.hl:Destroy() end
-        end
-        doorParts = {}
-        return
-    end
-    hue = (hue + dt * 0.3) % 1
-    local color = Color3.fromHSV(hue, 1, 1)
-    local char = LocalPlayer.Character; if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart"); if not hrp then return end
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and obj.Name:lower():find("door") then
-            local dist = (hrp.Position - obj.Position).Magnitude
-            if dist <= _G.SETTINGS.DoorGlow.Radius then
-                if not doorParts[obj] then
-                    local hl = Instance.new("Highlight")
-                    hl.FillColor = color; hl.FillTransparency = 0.5
-                    hl.OutlineTransparency = 0
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    hl.Parent = obj
-                    local light = Instance.new("PointLight")
-                    light.Color = color; light.Range = 15; light.Brightness = 2
-                    light.Parent = obj
-                    doorParts[obj] = {hl = hl, light = light}
-                else
-                    doorParts[obj].hl.FillColor = color
-                    doorParts[obj].light.Color = color
-                end
-            end
-        end
-    end
-end)
-
---// ================== FULLBRIGHT / NO FOG (SOFT FIXED) ==================
-local originalLighting = {
-    Brightness = Lighting.Brightness,
-    ClockTime = Lighting.ClockTime,
-    Ambient = Lighting.Ambient,
-    OutdoorAmbient = Lighting.OutdoorAmbient,
-    FogEnd = Lighting.FogEnd,
-    FogStart = Lighting.FogStart,
-}
-
-RunService.Heartbeat:Connect(function()
-    -- Fullbright (мягкий, без розового)
-    if _G.SETTINGS.Fullbright.Enabled then
-        Lighting.Brightness = 1.5
-        Lighting.ClockTime = 14
-        Lighting.Ambient = Color3.fromRGB(120, 120, 120)
-        Lighting.OutdoorAmbient = Color3.fromRGB(120, 120, 120)
-        Lighting.FogEnd = 2000
-    else
-        Lighting.Brightness = originalLighting.Brightness
-        Lighting.ClockTime = originalLighting.ClockTime
-        Lighting.Ambient = originalLighting.Ambient
-        Lighting.OutdoorAmbient = originalLighting.OutdoorAmbient
-        if not _G.SETTINGS.NoFog.Enabled then
-            Lighting.FogEnd = originalLighting.FogEnd
-            Lighting.FogStart = originalLighting.FogStart
-        end
-    end
-    -- No Fog (отдельно)
-    if _G.SETTINGS.NoFog.Enabled then
-        Lighting.FogEnd = 100000
-        Lighting.FogStart = 0
-    end
-end)
-
---// ================== ENTITY ESP ==================
-local espData = {}
-local ENTITY_NAMES = {"Rush","Ambush","Screech","Eyes","Hide","Seek","Figure","Glitch","Jack","Window","Dupe","Shadow"}
-
-local function createESP(entity, label)
-    if espData[entity] then return end
-    local hrp = entity:FindFirstChild("HumanoidRootPart") or entity:FindFirstChildOfClass("BasePart")
-    if not hrp then return end
-    local hl = Instance.new("Highlight")
-    hl.FillColor = _G.SETTINGS.ESP.Color; hl.FillTransparency = 0.5
-    hl.OutlineTransparency = 0
-    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    hl.Parent = entity
-    local bb = Instance.new("BillboardGui")
-    bb.Size = UDim2.new(0, 200, 0, 40)
-    bb.StudsOffset = Vector3.new(0, 3, 0)
-    bb.AlwaysOnTop = true
-    bb.Parent = entity
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, 0, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.TextColor3 = Color3.fromRGB(255, 100, 100)
-    lbl.TextStrokeTransparency = 0.3
-    lbl.TextScaled = true
-    lbl.Font = Enum.Font.GothamBold
-    lbl.Text = label
-    lbl.Parent = bb
-    espData[entity] = {hl = hl, bb = bb, lbl = lbl}
-end
-
-RunService.Heartbeat:Connect(function()
-    if not _G.SETTINGS.ESP.Enabled then
-        for _, d in pairs(espData) do
-            if d.hl then d.hl:Destroy() end
-            if d.bb then d.bb:Destroy() end
-        end
-        espData = {}
-        return
-    end
-    local char = LocalPlayer.Character; if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart"); if not hrp then return end
-    for _, entity in ipairs(workspace:GetDescendants()) do
-        if entity:IsA("Model") then
-            for _, ename in ipairs(ENTITY_NAMES) do
-                if entity.Name:lower():find(ename:lower()) then
-                    local ehrp = entity:FindFirstChild("HumanoidRootPart") or entity:FindFirstChildOfClass("BasePart")
-                    if ehrp then
-                        local dist = (hrp.Position - ehrp.Position).Magnitude
-                        if dist <= _G.SETTINGS.ESP.MaxDistance then
-                            createESP(entity, entity.Name)
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
---// ================== AUTO-LOOT / BREAKER ==================
-RunService.Heartbeat:Connect(function()
-    if not (_G.SETTINGS.AutoLoot.Enabled or _G.SETTINGS.AutoBreaker.Enabled) then return end
-    local char = LocalPlayer.Character; if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart"); if not hrp then return end
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if _G.SETTINGS.AutoLoot.Enabled and obj:IsA("BasePart") then
-            local n = obj.Name:lower()
-            if n:find("gold") or n:find("key") or n:find("coin") then
-                if (hrp.Position - obj.Position).Magnitude < 10 then
-                    pcall(function() hrp.CFrame = CFrame.new(obj.Position) end)
-                end
-            end
-        end
-        if _G.SETTINGS.AutoBreaker.Enabled and obj:IsA("ProximityPrompt") then
-            if obj.Parent and obj.Parent.Name:lower():find("breaker") then
-                pcall(function() fireproximityprompt(obj) end)
-            end
-        end
-    end
-end)
-
---// ================== GLOBALS ==================
-_G.BN.applyTheme = function(name)
-    _G.BN.THEME_NAME = name
-    _G.Theme = _G.THEMES[name]
-end
-
-print("[BlueNerv-P1] Core loaded! Loading Part2...")
-loadstring(game:HttpGet("https://raw.githubusercontent.com/DJCscripts/BlueNerv-Hub/main/Part2.lua", true))()
