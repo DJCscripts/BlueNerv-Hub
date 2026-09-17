@@ -149,7 +149,9 @@ local function buildMenu()
         local page = Instance.new("Frame")
         page.Size = UDim2.new(1, -8, 1, -12)
         page.Position = UDim2.new(0, 4, 0, 6)
-        page.BackgroundTransparency = 1; page.Visible = false; page.Parent = content
+        page.BackgroundTransparency = 1
+        page.Visible = false
+        page.Parent = content
 
         local pageLayout = Instance.new("UIListLayout")
         pageLayout.Padding = UDim.new(0, 6)
@@ -162,7 +164,6 @@ local function buildMenu()
         btn.MouseButton1Click:Connect(function() switchTab(name) end)
         return page
     end
-
     -- SECTION
     local function section(parent, text)
         local sec = Instance.new("TextLabel")
