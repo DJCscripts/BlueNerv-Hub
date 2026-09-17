@@ -1,7 +1,6 @@
 --// =====================================================
---//  BlueNerv Hub v1.0 - PART 2 (Menu + Quick Actions)
+--//  BlueNerv Hub v1.1 - PART 2 (Hello + Key + Menu) FIXED
 --//  Dev: Milover | Owner: DJC
---//  Telegram: @DeverJomdsCodeCC
 --// =====================================================
 
 print("[BlueNerv-P2] Loading menu...")
@@ -14,10 +13,8 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 local BN = _G.BN
-local T = _G.T
 local THEMES = _G.THEMES
 local SETTINGS = _G.SETTINGS
-
 local THEME = _G.Theme
 
 --// ================== UTILS ==================
@@ -33,31 +30,24 @@ local function gradient(p, c1, c2, rot)
     g.Rotation = rot or 0; g.Parent = p; return g
 end
 
---// ================== HELLO ANIMATION (FULLSCREEN) ==================
+--// ================== HELLO ANIMATION ==================
 local function showHelloAnimation(callback)
     local sg = Instance.new("ScreenGui")
-    sg.Name = "BN_Hello"
-    sg.ResetOnSpawn = false
-    sg.IgnoreGuiInset = true
-    sg.DisplayOrder = 9999
-    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.Name = "BN_Hello"; sg.ResetOnSpawn = false; sg.IgnoreGuiInset = true
+    sg.DisplayOrder = 9999; sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     sg.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
-    -- Gradient background
     local bg = Instance.new("Frame")
     bg.Size = UDim2.new(1, 0, 1, 0)
     bg.BackgroundColor3 = Color3.fromRGB(5, 10, 25)
-    bg.BorderSizePixel = 0
-    bg.ZIndex = 1
-    bg.Parent = sg
+    bg.BorderSizePixel = 0; bg.ZIndex = 1; bg.Parent = sg
     local bgGrad = Instance.new("UIGradient")
     bgGrad.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 10, 25)),
         ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 30, 70)),
         ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 10, 25)),
     })
-    bgGrad.Rotation = 90
-    bgGrad.Parent = bg
+    bgGrad.Rotation = 90; bgGrad.Parent = bg
 
     -- Stars
     for i = 1, 40 do
@@ -65,21 +55,17 @@ local function showHelloAnimation(callback)
         star.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
         star.Position = UDim2.new(math.random(), 0, math.random(), 0)
         star.BackgroundColor3 = Color3.fromRGB(200, 230, 255)
-        star.BorderSizePixel = 0
-        star.ZIndex = 2
-        star.Parent = sg
+        star.BorderSizePixel = 0; star.ZIndex = 2; star.Parent = sg
         corner(star, 99)
         TweenService:Create(star, TweenInfo.new(math.random(15, 30), Enum.EasingStyle.Linear), {
             Position = UDim2.new(math.random(), 0, 1, 0)
         }):Play()
     end
 
-    -- Hello letters
     local container = Instance.new("Frame")
     container.Size = UDim2.new(1, 0, 0, 200)
     container.Position = UDim2.new(0, 0, 0.5, -100)
-    container.BackgroundTransparency = 1
-    container.ZIndex = 3
+    container.BackgroundTransparency = 1; container.ZIndex = 3
     container.Parent = sg
 
     local letters = {"H", "E", "L", "L", "O"}
@@ -95,13 +81,10 @@ local function showHelloAnimation(callback)
         lbl.TextStrokeTransparency = 0.3
         lbl.TextStrokeColor3 = Color3.fromRGB(0, 136, 255)
         lbl.Font = Enum.Font.GothamBlack
-        lbl.TextScaled = true
-        lbl.ZIndex = 4
-        lbl.Parent = container
+        lbl.TextScaled = true; lbl.ZIndex = 4; lbl.Parent = container
         labels[i] = lbl
     end
 
-    -- Animate letters one by one
     local letterW = 60
     local totalW = letterW * #letters
     local startX = -totalW / 2 + letterW / 2
@@ -116,7 +99,6 @@ local function showHelloAnimation(callback)
 
     task.wait(0.6)
 
-    -- Subtitle
     local subtitle = Instance.new("TextLabel")
     subtitle.Size = UDim2.new(1, 0, 0, 30)
     subtitle.Position = UDim2.new(0, 0, 0.5, 80)
@@ -126,8 +108,7 @@ local function showHelloAnimation(callback)
     subtitle.Font = Enum.Font.GothamBold
     subtitle.TextSize = 22
     subtitle.TextTransparency = 1
-    subtitle.ZIndex = 4
-    subtitle.Parent = container
+    subtitle.ZIndex = 4; subtitle.Parent = container
     TweenService:Create(subtitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 
     local credit = Instance.new("TextLabel")
@@ -139,15 +120,15 @@ local function showHelloAnimation(callback)
     credit.Font = Enum.Font.Gotham
     credit.TextSize = 13
     credit.TextTransparency = 1
-    credit.ZIndex = 4
-    credit.Parent = container
+    credit.ZIndex = 4; credit.Parent = container
     TweenService:Create(credit, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
 
     task.wait(1.2)
 
-    -- Fade out
     TweenService:Create(bg, TweenInfo.new(0.6), {BackgroundTransparency = 1}):Play()
-    for _, lbl in ipairs(labels) do TweenService:Create(lbl, TweenInfo.new(0.6), {TextTransparency = 1, TextStrokeTransparency = 1}):Play() end
+    for _, lbl in ipairs(labels) do
+        TweenService:Create(lbl, TweenInfo.new(0.6), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+    end
     TweenService:Create(subtitle, TweenInfo.new(0.6), {TextTransparency = 1}):Play()
     TweenService:Create(credit, TweenInfo.new(0.6), {TextTransparency = 1}):Play()
 
@@ -159,19 +140,15 @@ end
 --// ================== KEY SCREEN ==================
 local function keyScreen(callback)
     local sg = Instance.new("ScreenGui")
-    sg.Name = "BN_KeyUI"
-    sg.ResetOnSpawn = false
-    sg.IgnoreGuiInset = true
-    sg.DisplayOrder = 999
-    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.Name = "BN_KeyUI"; sg.ResetOnSpawn = false; sg.IgnoreGuiInset = true
+    sg.DisplayOrder = 999; sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     sg.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
     local bg = Instance.new("Frame")
     bg.Size = UDim2.new(1, 0, 1, 0)
     bg.BackgroundColor3 = Color3.new(0, 0, 0)
     bg.BackgroundTransparency = 0.4
-    bg.BorderSizePixel = 0
-    bg.Parent = sg
+    bg.BorderSizePixel = 0; bg.Parent = sg
 
     local SCREEN = Camera.ViewportSize
     local w = math.min(370, SCREEN.X - 30)
@@ -181,26 +158,20 @@ local function keyScreen(callback)
     main.Size = UDim2.new(0, w, 0, h)
     main.Position = UDim2.new(0.5, -w/2, 0.5, -h/2)
     main.BackgroundColor3 = THEME.BG
-    main.BorderSizePixel = 0
-    main.ClipsDescendants = true
-    main.Parent = sg
-    corner(main, 16)
-    stroke(main, THEME.Accent, 1.5, 0.3)
+    main.BorderSizePixel = 0; main.ClipsDescendants = true; main.Parent = sg
+    corner(main, 16); stroke(main, THEME.Accent, 1.5, 0.3)
 
     local topBar = Instance.new("Frame")
     topBar.Size = UDim2.new(1, 0, 0, 4)
     topBar.BackgroundColor3 = THEME.Accent
-    topBar.BorderSizePixel = 0
-    topBar.Parent = main
+    topBar.BorderSizePixel = 0; topBar.Parent = main
     gradient(topBar, THEME.Accent, THEME.Accent2, 0)
 
     local icon = Instance.new("TextLabel")
     icon.Size = UDim2.new(0, 60, 0, 60)
     icon.Position = UDim2.new(0.5, -30, 0, 20)
-    icon.BackgroundTransparency = 1
-    icon.Text = "🔵"
-    icon.TextSize = 40
-    icon.Parent = main
+    icon.BackgroundTransparency = 1; icon.Text = "🔵"
+    icon.TextSize = 40; icon.Parent = main
 
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 24)
@@ -209,8 +180,7 @@ local function keyScreen(callback)
     title.Text = "BLUENERV HUB"
     title.TextColor3 = THEME.Text
     title.Font = Enum.Font.GothamBold
-    title.TextSize = 18
-    title.Parent = main
+    title.TextSize = 18; title.Parent = main
 
     local sub = Instance.new("TextLabel")
     sub.Size = UDim2.new(1, 0, 0, 16)
@@ -219,23 +189,18 @@ local function keyScreen(callback)
     sub.Text = "by Milover & DJC"
     sub.TextColor3 = THEME.TextDim
     sub.Font = Enum.Font.Gotham
-    sub.TextSize = 11
-    sub.Parent = main
+    sub.TextSize = 11; sub.Parent = main
 
     local input = Instance.new("TextBox")
     input.Size = UDim2.new(1, -50, 0, 48)
     input.Position = UDim2.new(0, 25, 0, 148)
     input.BackgroundColor3 = THEME.Elem
-    input.Text = ""
-    input.PlaceholderText = "Enter key..."
+    input.Text = ""; input.PlaceholderText = "Enter key..."
     input.PlaceholderColor3 = THEME.TextDim
     input.TextColor3 = THEME.Text
     input.Font = Enum.Font.GothamSemibold
-    input.TextSize = 15
-    input.ClearTextOnFocus = false
-    input.Parent = main
-    corner(input, 12)
-    local inpStroke = stroke(input, THEME.Stroke, 1, 0)
+    input.TextSize = 15; input.ClearTextOnFocus = false; input.Parent = main
+    corner(input, 12); local inpStroke = stroke(input, THEME.Stroke, 1, 0)
 
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -50, 0, 48)
@@ -244,11 +209,8 @@ local function keyScreen(callback)
     btn.Text = "🔓  ACTIVATE"
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 15
-    btn.AutoButtonColor = false
-    btn.Parent = main
-    corner(btn, 12)
-    gradient(btn, THEME.Accent, THEME.Accent2, 0)
+    btn.TextSize = 15; btn.AutoButtonColor = false; btn.Parent = main
+    corner(btn, 12); gradient(btn, THEME.Accent, THEME.Accent2, 0)
 
     local tg = Instance.new("TextButton")
     tg.Size = UDim2.new(1, -50, 0, 40)
@@ -257,9 +219,7 @@ local function keyScreen(callback)
     tg.Text = "📢  TELEGRAM"
     tg.TextColor3 = Color3.fromRGB(255, 255, 255)
     tg.Font = Enum.Font.GothamBold
-    tg.TextSize = 13
-    tg.AutoButtonColor = false
-    tg.Parent = main
+    tg.TextSize = 13; tg.AutoButtonColor = false; tg.Parent = main
     corner(tg, 12)
     tg.MouseButton1Click:Connect(function()
         pcall(function() game:GetService("GuiService"):OpenBrowserWindow(BN.AUTHOR.TelegramURL) end)
@@ -269,24 +229,19 @@ local function keyScreen(callback)
     local status = Instance.new("TextLabel")
     status.Size = UDim2.new(1, -50, 0, 20)
     status.Position = UDim2.new(0, 25, 1, -30)
-    status.BackgroundTransparency = 1
-    status.Text = ""
+    status.BackgroundTransparency = 1; status.Text = ""
     status.TextColor3 = THEME.Danger
     status.Font = Enum.Font.Gotham
-    status.TextSize = 12
-    status.Parent = main
+    status.TextSize = 12; status.Parent = main
 
     local function activate()
         if input.Text == BN.KEY then
-            status.Text = "✅ Access granted!"
-            status.TextColor3 = THEME.Success
+            status.Text = "✅ Access granted!"; status.TextColor3 = THEME.Success
             inpStroke.Color = THEME.Success
-            task.wait(0.5)
-            sg:Destroy()
+            task.wait(0.5); sg:Destroy()
             if callback then callback() end
         else
-            status.Text = "❌ Invalid key!"
-            status.TextColor3 = THEME.Danger
+            status.Text = "❌ Invalid key!"; status.TextColor3 = THEME.Danger
             inpStroke.Color = THEME.Danger
             local orig = main.Position
             for i = 1, 4 do
@@ -302,12 +257,12 @@ local function keyScreen(callback)
     input.FocusLost:Connect(function(e) if e then activate() end end)
 end
 
---// ================== MAIN MENU ==================
+--// ================== BUILD MENU ==================
 local function buildMenu()
+    print("[BN-P2] Building menu...")
+
     local sg = Instance.new("ScreenGui")
-    sg.Name = "BN_Menu"
-    sg.ResetOnSpawn = false
-    sg.IgnoreGuiInset = true
+    sg.Name = "BN_Menu"; sg.ResetOnSpawn = false; sg.IgnoreGuiInset = true
     sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     sg.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
@@ -319,42 +274,31 @@ local function buildMenu()
     main.Size = UDim2.new(0, menuW, 0, menuH)
     main.Position = UDim2.new(0.5, -menuW/2, 0.5, -menuH/2)
     main.BackgroundColor3 = THEME.BG
-    main.BorderSizePixel = 0
-    main.Active = true
-    main.Draggable = true
-    main.ClipsDescendants = true
-    main.Parent = sg
-    corner(main, 16)
-    stroke(main, THEME.Accent, 1.5, 0.3)
+    main.BorderSizePixel = 0; main.Active = true; main.Draggable = true
+    main.ClipsDescendants = true; main.Parent = sg
+    corner(main, 16); stroke(main, THEME.Accent, 1.5, 0.3)
 
-    -- Top bar
     local topBar = Instance.new("Frame")
     topBar.Size = UDim2.new(1, 0, 0, 4)
     topBar.BackgroundColor3 = THEME.Accent
-    topBar.BorderSizePixel = 0
-    topBar.Parent = main
+    topBar.BorderSizePixel = 0; topBar.Parent = main
     gradient(topBar, THEME.Accent, THEME.Accent2, 0)
 
-    -- Header
     local header = Instance.new("Frame")
     header.Size = UDim2.new(1, 0, 0, 56)
     header.BackgroundColor3 = THEME.BGAlt
-    header.BorderSizePixel = 0
-    header.Parent = main
+    header.BorderSizePixel = 0; header.Parent = main
 
     local logo = Instance.new("Frame")
     logo.Size = UDim2.new(0, 40, 0, 40)
     logo.Position = UDim2.new(0, 12, 0.5, -20)
-    logo.BackgroundColor3 = THEME.Accent
-    logo.Parent = header
-    corner(logo, 12)
-    gradient(logo, THEME.Accent, THEME.Accent2, 45)
+    logo.BackgroundColor3 = THEME.Accent; logo.Parent = header
+    corner(logo, 12); gradient(logo, THEME.Accent, THEME.Accent2, 45)
 
     local logoIcon = Instance.new("TextLabel")
     logoIcon.Size = UDim2.new(1, 0, 1, 0)
     logoIcon.BackgroundTransparency = 1
-    logoIcon.Text = "🔵"
-    logoIcon.TextSize = 22
+    logoIcon.Text = "🔵"; logoIcon.TextSize = 22
     logoIcon.Parent = logo
 
     local title = Instance.new("TextLabel")
@@ -383,20 +327,15 @@ local function buildMenu()
     close.Size = UDim2.new(0, 40, 0, 40)
     close.Position = UDim2.new(1, -50, 0.5, -20)
     close.BackgroundColor3 = THEME.Danger
-    close.Text = "✕"
-    close.TextColor3 = Color3.fromRGB(255, 255, 255)
+    close.Text = "✕"; close.TextColor3 = Color3.fromRGB(255, 255, 255)
     close.Font = Enum.Font.GothamBold
-    close.TextSize = 18
-    close.AutoButtonColor = false
-    close.Parent = header
+    close.TextSize = 18; close.AutoButtonColor = false; close.Parent = header
     corner(close, 10)
 
-    -- Tabs bar
     local tabsBar = Instance.new("Frame")
     tabsBar.Size = UDim2.new(1, -16, 0, 38)
     tabsBar.Position = UDim2.new(0, 8, 0, 62)
-    tabsBar.BackgroundColor3 = THEME.BGAlt
-    tabsBar.Parent = main
+    tabsBar.BackgroundColor3 = THEME.BGAlt; tabsBar.Parent = main
     corner(tabsBar, 10)
 
     local tabsLayout = Instance.new("UIListLayout")
@@ -406,39 +345,21 @@ local function buildMenu()
     tabsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     tabsLayout.Parent = tabsBar
 
-    -- Content area
     local content = Instance.new("ScrollingFrame")
     content.Size = UDim2.new(1, -16, 1, -120)
     content.Position = UDim2.new(0, 8, 0, 108)
-    content.BackgroundTransparency = 1
-    content.BorderSizePixel = 0
+    content.BackgroundTransparency = 1; content.BorderSizePixel = 0
     content.ScrollBarThickness = 5
     content.ScrollBarImageColor3 = THEME.Accent
     content.CanvasSize = UDim2.new(0, 0, 0, 5000)
     content.ScrollingDirection = Enum.ScrollingDirection.Y
     content.Parent = main
 
-    local contentLayout = Instance.new("UIListLayout")
-    contentLayout.Padding = UDim.new(0, 6)
-    contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    contentLayout.Parent = content
-
-    local pad = Instance.new("UIPadding")
-    pad.PaddingTop = UDim.new(0, 6)
-    pad.PaddingBottom = UDim.new(0, 12)
-    pad.PaddingLeft = UDim.new(0, 4)
-    pad.PaddingRight = UDim.new(0, 4)
-    pad.Parent = content
-
-    -- Pages
     local pages = {}
     local tabButtons = {}
-    local currentTab = ""
 
     local function switchTab(name)
-        for tabName, page in pairs(pages) do
-            page.Visible = tabName == name
-        end
+        for tabName, page in pairs(pages) do page.Visible = tabName == name end
         for tabName, btn in pairs(tabButtons) do
             local active = tabName == name
             TweenService:Create(btn, TweenInfo.new(0.2), {
@@ -446,27 +367,21 @@ local function buildMenu()
             }):Play()
             btn.TextColor3 = active and Color3.fromRGB(255,255,255) or THEME.TextDim
         end
-        currentTab = name
     end
 
     local function createTab(name, icon)
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, 72, 0, 28)
+        btn.Size = UDim2.new(0, 68, 0, 28)
         btn.BackgroundColor3 = THEME.Elem
-        btn.Text = icon
-        btn.TextColor3 = THEME.TextDim
+        btn.Text = icon; btn.TextColor3 = THEME.TextDim
         btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 14
-        btn.AutoButtonColor = false
-        btn.Parent = tabsBar
+        btn.TextSize = 14; btn.AutoButtonColor = false; btn.Parent = tabsBar
         corner(btn, 8)
 
         local page = Instance.new("Frame")
         page.Size = UDim2.new(1, -8, 1, -12)
         page.Position = UDim2.new(0, 4, 0, 6)
-        page.BackgroundTransparency = 1
-        page.Visible = false
-        page.Parent = content
+        page.BackgroundTransparency = 1; page.Visible = false; page.Parent = content
 
         local pageLayout = Instance.new("UIListLayout")
         pageLayout.Padding = UDim.new(0, 6)
@@ -480,7 +395,6 @@ local function buildMenu()
         return page
     end
 
-    -- Section
     local function section(parent, text)
         local sec = Instance.new("TextLabel")
         sec.Size = UDim2.new(1, 0, 0, 24)
@@ -493,23 +407,19 @@ local function buildMenu()
         sec.Parent = parent
     end
 
-    -- Toggle
     local function toggle(parent, text, initial, cb)
         local state = initial
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(1, 0, 0, 46)
-        btn.BackgroundColor3 = THEME.Elem
-        btn.Text = ""
-        btn.AutoButtonColor = false
-        btn.Parent = parent
+        btn.BackgroundColor3 = THEME.Elem; btn.Text = ""
+        btn.AutoButtonColor = false; btn.Parent = parent
         corner(btn, 10)
 
         local lbl = Instance.new("TextLabel")
         lbl.Size = UDim2.new(1, -80, 1, 0)
         lbl.Position = UDim2.new(0, 14, 0, 0)
         lbl.BackgroundTransparency = 1
-        lbl.Text = text
-        lbl.TextColor3 = THEME.Text
+        lbl.Text = text; lbl.TextColor3 = THEME.Text
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 13
         lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -519,15 +429,13 @@ local function buildMenu()
         sw.Size = UDim2.new(0, 48, 0, 26)
         sw.Position = UDim2.new(1, -60, 0.5, -13)
         sw.BackgroundColor3 = state and THEME.Success or Color3.fromRGB(50, 55, 70)
-        sw.Parent = btn
-        corner(sw, 13)
+        sw.Parent = btn; corner(sw, 13)
 
         local knob = Instance.new("Frame")
         knob.Size = UDim2.new(0, 22, 0, 22)
         knob.Position = state and UDim2.new(1, -24, 0.5, -11) or UDim2.new(0, 2, 0.5, -11)
         knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        knob.Parent = sw
-        corner(knob, 11)
+        knob.Parent = sw; corner(knob, 11)
 
         btn.MouseButton1Click:Connect(function()
             state = not state
@@ -539,24 +447,20 @@ local function buildMenu()
                 Position = state and UDim2.new(1, -24, 0.5, -11) or UDim2.new(0, 2, 0.5, -11)
             }):Play()
         end)
-        return btn
     end
 
-    -- Slider
     local function slider(parent, text, min, max, init, cb)
         local val = init
         local f = Instance.new("Frame")
         f.Size = UDim2.new(1, 0, 0, 58)
-        f.BackgroundColor3 = THEME.Elem
-        f.Parent = parent
+        f.BackgroundColor3 = THEME.Elem; f.Parent = parent
         corner(f, 10)
 
         local lbl = Instance.new("TextLabel")
         lbl.Size = UDim2.new(1, -80, 0, 20)
         lbl.Position = UDim2.new(0, 14, 0, 6)
         lbl.BackgroundTransparency = 1
-        lbl.Text = text
-        lbl.TextColor3 = THEME.Text
+        lbl.Text = text; lbl.TextColor3 = THEME.Text
         lbl.Font = Enum.Font.GothamSemibold
         lbl.TextSize = 13
         lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -566,8 +470,7 @@ local function buildMenu()
         vl.Size = UDim2.new(0, 60, 0, 20)
         vl.Position = UDim2.new(1, -74, 0, 6)
         vl.BackgroundTransparency = 1
-        vl.Text = tostring(val)
-        vl.TextColor3 = THEME.Accent2
+        vl.Text = tostring(val); vl.TextColor3 = THEME.Accent2
         vl.Font = Enum.Font.GothamBold
         vl.TextSize = 13
         vl.TextXAlignment = Enum.TextXAlignment.Right
@@ -577,7 +480,30 @@ local function buildMenu()
         bar.Size = UDim2.new(1, -28, 0, 10)
         bar.Position = UDim2.new(0, 14, 1, -20)
         bar.BackgroundColor3 = Color3.fromRGB(45, 50, 65)
-        bar.Parent = f
-        corner(bar, 5)
+        bar.Parent = f; corner(bar, 5)
 
-        local pc
+        local pct = (val - min) / (max - min)
+        local fill = Instance.new("Frame")
+        fill.Size = UDim2.new(pct, 0, 1, 0)
+        fill.BackgroundColor3 = THEME.Accent
+        fill.BorderSizePixel = 0; fill.Parent = bar; corner(fill, 5)
+        gradient(fill, THEME.Accent, THEME.Accent2, 0)
+
+        local knob = Instance.new("Frame")
+        knob.Size = UDim2.new(0, 18, 0, 18)
+        knob.AnchorPoint = Vector2.new(0.5, 0.5)
+        knob.Position = UDim2.new(pct, 0, 0.5, 0)
+        knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        knob.Parent = bar; corner(knob, 9)
+        stroke(knob, THEME.Accent, 2, 0)
+
+        local drag = false
+        local function update(inp)
+            local p = math.clamp((inp.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+            fill.Size = UDim2.new(p, 0, 1, 0)
+            knob.Position = UDim2.new(p, 0, 0.5, 0)
+            val = math.floor(min + (max - min) * p)
+            vl.Text = tostring(val)
+            if cb then cb(val) end
+        end
+        bar.InputBegan:Conne
