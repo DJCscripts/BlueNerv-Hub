@@ -126,16 +126,18 @@ local function buildMenu()
     local tabButtons = {}
 
     local function switchTab(name)
-        for tabName, page in pairs(pages) do page.Visible = tabName == name end
+        for tabName, page in pairs(pages) do
+            page.Visible = (tabName == name)
+        end
         for tabName, btn in pairs(tabButtons) do
-            local active = tabName == name
+            local active = (tabName == name)
             TweenService:Create(btn, TweenInfo.new(0.2), {
                 BackgroundColor3 = active and THEME.Accent or THEME.Elem
             }):Play()
             btn.TextColor3 = active and Color3.fromRGB(255,255,255) or THEME.TextDim
         end
     end
-
+    
     local function createTab(name, label)
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(0, 74, 0, 28)
