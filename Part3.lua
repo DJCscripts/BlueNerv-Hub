@@ -166,6 +166,7 @@ local function buildMenu()
         btn.MouseButton1Click:Connect(function() switchTab(name) end)
         return page
     end
+    
     -- SECTION
     local function section(parent, text)
         local sec = Instance.new("TextLabel")
