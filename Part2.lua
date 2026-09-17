@@ -83,7 +83,7 @@ RunService.RenderStepped:Connect(function()
         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0, 1, 0) end
         if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then move -= Vector3.new(0, 1, 0) end
         if move.Magnitude > 0 then
-            flyVelocity.Velocity = move.Unit * SETTINGS.Fly.Speed
+            flyVelocity.Velocity = move.Unit * SETTINGS.FlySpeed.Value
         else
             flyVelocity.Velocity = Vector3.zero
         end
